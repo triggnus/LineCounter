@@ -1,9 +1,22 @@
+//! # LineCounter
+//! 
+//! Simple file line counter. This program was written from scratch. Though it replicates the effect of wc -l \[fname\], it 
+//! contains no code in common.
+//!
+//! usage: lc \[file name(s)\]
+//! 
+//! Author: Rob Teeple <somethingobscure@gmail.com>
+//! 
+//! This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+//! 
+//! This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+//! of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+//! 
+//! You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu
+//! .org/licenses/>.
+
 use std::fs::File;
 use std::io::{Read};
-
-/// Simple line counter that replicates the effect of wc -l \[fname\]
-///
-/// usage: LineCount \[file name(s)\]
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -11,10 +24,14 @@ fn main() -> std::io::Result<()>
 {
 	let args: Vec<String> = std::env::args().collect();
 
+	// if no arguments, print out usage and copyright
 	if args.len() == 1
 	{
 		println!("Line Counter v: {}", VERSION);
-		println!("Usage: lc [filename(s)]");
+		println!("Usage: {} [filename(s)]\n", args[0].split("/").last().unwrap());
+		println!("LineCounter Copyright (C) 2025 Rob Teeple");
+		println!("Released under GPL-3.0-only or GPL-3.0-or-later <https://www.gnu.org/licenses/gpl-3.0.html>");
+		println!("Source code: <https://github.com/triggnus/LineCounter>");
 
 		return Ok(());
 	}
