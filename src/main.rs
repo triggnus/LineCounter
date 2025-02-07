@@ -66,9 +66,7 @@ fn main() -> std::io::Result<()>
 	}
 
 	// determine the amount of padding we will need to properly align the output.
-	// log10(num).floor() would return the number of digits - 1. For aesthetics, we add two to add a blank space before the
-	// numbers.
-	let width = (f64::log10(total_lines as f64) + 2.0).floor() as usize;
+	let width = total_lines.to_string().chars().count() + 2;
 
 	for result in results
 	{
