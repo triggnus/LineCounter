@@ -7,13 +7,14 @@
 //!
 //! Author: Rob Teeple <somethingobscure@gmail.com>
 //!
-//! This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+//! This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public 
+//! License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 //!
 //! This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
 //! of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 //!
-//! You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu
-//! .org/licenses/>.
+//! You should have received a copy of the GNU General Public License along with this program. If not, see 
+//! <https://www.gnu.org/licenses/>.
 
 use std::fs::File;
 use std::io::{Read};
@@ -27,7 +28,7 @@ fn main() -> std::io::Result<()>
 	// if no arguments, print out usage and copyright
 	if args.len() == 1
 	{
-		println!("Line Counter v: {}", VERSION);
+		println!("Line Counter v: {VERSION}");
 		println!("Usage: {} [filename(s)]\n", args[0].split("/").last().unwrap());
 		println!("LineCounter Copyright (C) 2025 Rob Teeple");
 		println!("Released under GPL-3.0-only or GPL-3.0-or-later <https://www.gnu.org/licenses/gpl-3.0.html>");
@@ -50,7 +51,7 @@ fn main() -> std::io::Result<()>
 			Ok(mut a) =>
 				a.read_to_end(buf.as_mut())?,
 			Err(error) => {
-				eprintln!("Error reading file {}: {}", argument, error);
+				eprintln!("Error reading file {argument}: {error}");
 				// this program should exit gracefully if the arguments are bad. No need to pass the error back to the terminal.
 				return Ok(());
 			},
@@ -77,7 +78,7 @@ fn main() -> std::io::Result<()>
 	// if we pass more than one file to count, print a total
 	if args.len() > 2
 	{
-		println!("{:w$} Total", total_lines, w = width);
+		println!("{total_lines:width$} Total");
 	}
 
 	Ok(())
