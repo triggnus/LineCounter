@@ -18,29 +18,34 @@
 //! You should have received a copy of the GNU General Public License along with this program. If not, see
 //! <https://www.gnu.org/licenses/>.
 
+//TODO: Should read from stdin as well.
+
 use std::fs::File;
-use std::io::Read;
+use std::io::{self, BufRead, Read};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 fn main() -> std::io::Result<()> {
     let mut args: Vec<String> = std::env::args().collect();
-    let mut count_only = false;
 
+    // only print the total lines of all input
+    let mut total_only = false;
+
+    // if the -t option was passed, set program to total_only mode. Also, remove the flag from the arguments.
     let mut rem_idx = 0;
     for (index, arg) in args.iter().enumerate() {
         if arg == "-t" {
-            count_only = true;
+            total_only = true;
             rem_idx = index;
-
             break;
         }
     }
-
-    args.remove(rem_idx);
+    if rem_idx > 0 {
+        args.remove(rem_idx);
+    }
 
     // if no arguments, print out usage and copyright
-    if args.len() == 1 {
+    if args.contains(&"-h".to_string()) || args.contains(&"--help".to_string()) {
         println!(
             "Usage: {} [filename(s)]",
             // This line returns the name of the executing program (even if it changes). By default, args[0]
@@ -64,31 +69,58 @@ fn main() -> std::io::Result<()> {
     let mut total_lines = 0;
     let mut results: Vec<(usize, String)> = Vec::new();
 
-    //iterate over args, but skip the first (the program itself)
-    for argument in args.iter().skip(1) {
-        // this is where the text of the file is kept
-        let mut buffer = vec![];
+    /*
+     let reader: Box<dyn BufRead> = if args.len() == 1 {
+        Box::new(io::stdin().lock())
+    } else {
+        if let Some((_name, ext)) = args[1].rsplit_once(".")
+            && ext.eq_ignore_ascii_case("CSV")
+        {
+            let path = PathBuf::from(args[1].as_str());
+            let file = File::open(path).expect("File not found!");
+            Box::new(BufReader::new(file))
+        } else {
+            return Err("Invalid file format. Program only accepts CSV files".into());
+        }
+    };
 
-        match File::open(argument) {
-            Ok(mut a) => a.read_to_end(buffer.as_mut())?,
-            Err(error) => {
-                eprintln!("Error reading file {argument}: {error}");
-                // this program should exit gracefully if the arguments are bad. No need to pass the error
-                // back to the terminal. The stakes are quite low.
-                return Ok(());
-            }
-        };
+    let lines = reader.lines();
+     */
 
-        // because we do not know if the text file is in UTF-8 format, and a string in rust *must* be
-        // UTF-8, we have to read the file as a Vec<u8> and convert it.
-        let l = String::from_utf8_lossy(&buffer).lines().count();
+    let files: Vec<&String> = args.iter().skip(1).collect();
 
-        results.push((l, argument.to_string()));
+    if files.len() == 0 {
+        let reader = Box::new(io::stdin().lock());
+        let lines = reader.lines().count();
+        results.push((lines, "STDIN".to_string()));
+        total_lines += lines;
+    } else {
+        //iterate over args, but skip the first (the program itself)
+        for argument in args.iter().skip(1) {
+            // this is where the text of the file is kept
+            let mut buffer = vec![];
 
-        total_lines += l;
+            match File::open(argument) {
+                Ok(mut a) => a.read_to_end(buffer.as_mut())?,
+                Err(error) => {
+                    eprintln!("Error reading file {argument}: {error}");
+                    // this program should exit gracefully if the arguments are bad. No need to pass the error
+                    // back to the terminal. The stakes are quite low.
+                    return Ok(());
+                }
+            };
+
+            // because we do not know if the text file is in UTF-8 format, and a string in rust *must* be
+            // UTF-8, we have to read the file as a Vec<u8> and convert it.
+            let lines = String::from_utf8_lossy(&buffer).lines().count();
+
+            results.push((lines, argument.to_string()));
+
+            total_lines += lines;
+        }
     }
 
-    if count_only {
+    if total_only {
         println!("{total_lines}");
     } else {
         // determine the amount of padding we will need to properly align the output.
