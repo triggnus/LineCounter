@@ -27,7 +27,7 @@ fn main() -> std::io::Result<()> {
     // only print the total lines of all input
     let mut total_only = false;
 
-    // if the -t option was passed, set program to total_only mode. Also, remove the flag from the arguments.
+    // if the -t option was passed, set program to total_only mode. Also, remove the flag from the files.
     let args: Vec<String> = std::env::args()
         .filter(|p| {
             if p == "-t" {
@@ -39,7 +39,7 @@ fn main() -> std::io::Result<()> {
         })
         .collect();
 
-    // if no arguments, print out usage and copyright
+    // if no files, print out usage and copyright
     if args.contains(&"-h".to_string()) || args.contains(&"--help".to_string()) {
         println!(
             "Usage: {} [filename(s)]",
@@ -73,15 +73,15 @@ fn main() -> std::io::Result<()> {
         total_lines += lines;
     } else {
         //iterate over args, but skip the first (the program itself)
-        for argument in args.iter().skip(1) {
+        for file in files {
             // this is where the text of the file is kept
             let mut buffer = vec![];
 
-            match File::open(argument) {
+            match File::open(file) {
                 Ok(mut a) => a.read_to_end(buffer.as_mut())?,
                 Err(error) => {
-                    eprintln!("Error reading file {argument}: {error}");
-                    // this program should exit gracefully if the arguments are bad. No need to pass the error
+                    eprintln!("Error reading file {file}: {error}");
+                    // this program should exit gracefully if the files are bad. No need to pass the error
                     // back to the terminal. The stakes are quite low.
                     return Ok(());
                 }
@@ -91,7 +91,7 @@ fn main() -> std::io::Result<()> {
             // UTF-8, we have to read the file as a Vec<u8> and convert it.
             let lines = String::from_utf8_lossy(&buffer).lines().count();
 
-            results.push((lines, argument.to_string()));
+            results.push((lines, file.to_string()));
 
             total_lines += lines;
         }
