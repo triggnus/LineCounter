@@ -18,31 +18,26 @@
 //! You should have received a copy of the GNU General Public License along with this program. If not, see
 //! <https://www.gnu.org/licenses/>.
 
-//TODO: Should read from stdin as well.
-
 use std::fs::File;
 use std::io::{self, BufRead, Read};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 fn main() -> std::io::Result<()> {
-    let mut args: Vec<String> = std::env::args().collect();
-
     // only print the total lines of all input
     let mut total_only = false;
 
     // if the -t option was passed, set program to total_only mode. Also, remove the flag from the arguments.
-    let mut rem_idx = 0;
-    for (index, arg) in args.iter().enumerate() {
-        if arg == "-t" {
-            total_only = true;
-            rem_idx = index;
-            break;
-        }
-    }
-    if rem_idx > 0 {
-        args.remove(rem_idx);
-    }
+    let args: Vec<String> = std::env::args()
+        .filter(|p| {
+            if p == "-t" {
+                total_only = true;
+                false
+            } else {
+                true
+            }
+        })
+        .collect();
 
     // if no arguments, print out usage and copyright
     if args.contains(&"-h".to_string()) || args.contains(&"--help".to_string()) {
@@ -68,24 +63,6 @@ fn main() -> std::io::Result<()> {
     // begin calculation of line count
     let mut total_lines = 0;
     let mut results: Vec<(usize, String)> = Vec::new();
-
-    /*
-     let reader: Box<dyn BufRead> = if args.len() == 1 {
-        Box::new(io::stdin().lock())
-    } else {
-        if let Some((_name, ext)) = args[1].rsplit_once(".")
-            && ext.eq_ignore_ascii_case("CSV")
-        {
-            let path = PathBuf::from(args[1].as_str());
-            let file = File::open(path).expect("File not found!");
-            Box::new(BufReader::new(file))
-        } else {
-            return Err("Invalid file format. Program only accepts CSV files".into());
-        }
-    };
-
-    let lines = reader.lines();
-     */
 
     let files: Vec<&String> = args.iter().skip(1).collect();
 
