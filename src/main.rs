@@ -75,7 +75,7 @@ fn main() -> std::io::Result<()> {
         //iterate over args, but skip the first (the program itself)
         for file in files {
             // this is where the text of the file is kept
-            let mut buffer = vec![];
+            let mut buffer: Vec<u8> = Vec::new();
 
             match File::open(file) {
                 Ok(mut a) => a.read_to_end(buffer.as_mut())?,
